@@ -29,7 +29,7 @@ final class SelfUpdateCommand extends Command
             'target-version',
             null,
             InputOption::VALUE_REQUIRED,
-            'Конкретная версия, например 0.1.0 или v0.1.0',
+            'Конкретная версия, например 0.1.1 или v0.1.1',
         );
         $this->addOption(
             'url',

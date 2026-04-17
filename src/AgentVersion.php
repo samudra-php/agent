@@ -11,7 +11,7 @@ use RuntimeException;
  */
 final class AgentVersion
 {
-    public const string CURRENT = '0.1.0';
+    public const string CURRENT = '0.1.1';
     public const string DEFAULT_RELEASE_URL = 'https://github.com/samudra-php/agent/releases/latest/download/samudra.phar';
 
     public static function normalize(string $version): string

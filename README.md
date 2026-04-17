@@ -28,7 +28,7 @@ samudra --help
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/samudra-php/agent/main/bin/install.sh | \
-  SAMUDRA_INSTALL_URL="https://github.com/samudra-php/agent/releases/download/v0.1.0/samudra.phar" bash
+  SAMUDRA_INSTALL_URL="https://github.com/samudra-php/agent/releases/download/v0.1.1/samudra.phar" bash
 ```
 
 ## Подключение проекта

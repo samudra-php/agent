@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Samudra\Agent\Commands;
 
 use Samudra\Agent\AgentCompatibilityGuard;
+use Samudra\Agent\AgentVersion;
 use Throwable;
 use Samudra\IndexBundleContract\BundleProfile;
 use Samudra\IndexBundleContract\RunMode;
@@ -134,7 +135,7 @@ final class ExtractCommand extends Command
 
         // Сериализуем bundle
         $io->text('Сериализация bundle...');
-        $serializer = new BundleSerializer();
+        $serializer = new BundleSerializer(AgentVersion::CURRENT);
         $installationManager = new InstallationManager();
         $installationId = $installationManager->getInstallationId();
         $enrichmentExtractor = new LaravelEnrichmentExtractor();
