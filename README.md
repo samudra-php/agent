@@ -27,8 +27,8 @@ samudra --help
 Если нужен конкретный release:
 
 ```bash
-SAMUDRA_INSTALL_URL="https://github.com/samudra-php/agent/releases/download/v0.1.0/samudra.phar" \
-  curl -fsSL https://raw.githubusercontent.com/samudra-php/agent/main/bin/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/samudra-php/agent/main/bin/install.sh | \
+  SAMUDRA_INSTALL_URL="https://github.com/samudra-php/agent/releases/download/v0.1.0/samudra.phar" bash
 ```
 
 ## Подключение проекта
@@ -36,11 +36,17 @@ SAMUDRA_INSTALL_URL="https://github.com/samudra-php/agent/releases/download/v0.1
 В каталоге индексируемого PHP-проекта:
 
 ```bash
-samudra init --platform-url http://localhost:18000
+samudra init
 samudra login --token "...ваш_токен..."
 samudra register
 samudra extract
 samudra status
+```
+
+Если платформа доступна не по `http://localhost:18000`, укажи URL явно:
+
+```bash
+samudra init --platform-url http://your-host:port
 ```
 
 Что делают команды:

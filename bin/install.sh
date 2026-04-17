@@ -1,12 +1,18 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-AGENT_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
+SCRIPT_SOURCE="${BASH_SOURCE[0]:-}"
+AGENT_DIR=""
+
+if [[ -n "${SCRIPT_SOURCE}" && -f "${SCRIPT_SOURCE}" ]]; then
+  SCRIPT_DIR="$(cd "$(dirname "${SCRIPT_SOURCE}")" && pwd)"
+  AGENT_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
+fi
+
 INSTALL_DIR="${SAMUDRA_INSTALL_DIR:-${HOME}/.local/bin}"
 TARGET_PATH="${INSTALL_DIR}/samudra"
 
-LOCAL_PHAR="${AGENT_DIR}/dist/samudra.phar"
+LOCAL_PHAR="${AGENT_DIR:+${AGENT_DIR}/dist/samudra.phar}"
 SOURCE_FILE="${SAMUDRA_INSTALL_FILE:-}"
 SOURCE_URL="${SAMUDRA_INSTALL_URL:-}"
 DEFAULT_RELEASE_URL="https://github.com/samudra-php/agent/releases/latest/download/samudra.phar"
