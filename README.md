@@ -43,6 +43,8 @@ samudra --help
 SAMUDRA_INSTALL_URL="https://example.com/samudra.phar" ./bin/install.sh
 ```
 
+Если локального `dist/samudra.phar` нет и `SAMUDRA_INSTALL_URL` не задан, установщик скачает последний release с GitHub.
+
 ## Использование против локальной платформы
 
 В целевом PHP-проекте:

@@ -9,6 +9,7 @@ TARGET_PATH="${INSTALL_DIR}/samudra"
 LOCAL_PHAR="${AGENT_DIR}/dist/samudra.phar"
 SOURCE_FILE="${SAMUDRA_INSTALL_FILE:-}"
 SOURCE_URL="${SAMUDRA_INSTALL_URL:-}"
+DEFAULT_RELEASE_URL="https://github.com/samudra-php/agent/releases/latest/download/samudra.phar"
 
 if ! command -v php >/dev/null 2>&1; then
   echo "php is required to run samudra.phar" >&2
@@ -19,14 +20,12 @@ mkdir -p "${INSTALL_DIR}"
 
 if [[ -n "${SOURCE_FILE}" ]]; then
   cp "${SOURCE_FILE}" "${TARGET_PATH}"
-elif [[ -n "${SOURCE_URL}" ]]; then
-  curl -fsSL "${SOURCE_URL}" -o "${TARGET_PATH}"
 elif [[ -f "${LOCAL_PHAR}" ]]; then
   cp "${LOCAL_PHAR}" "${TARGET_PATH}"
+elif [[ -n "${SOURCE_URL}" ]]; then
+  curl -fsSL "${SOURCE_URL}" -o "${TARGET_PATH}"
 else
-  echo "No PHAR source found." >&2
-  echo "Build it first with ./bin/build-phar or set SAMUDRA_INSTALL_FILE / SAMUDRA_INSTALL_URL." >&2
-  exit 1
+  curl -fsSL "${DEFAULT_RELEASE_URL}" -o "${TARGET_PATH}"
 fi
 
 chmod +x "${TARGET_PATH}"

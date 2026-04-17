@@ -1,0 +1,64 @@
+name: release
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    defaults:
+      run:
+        working-directory: agent
+    steps:
+      - name: Checkout agent
+        uses: actions/checkout@v4
+        with:
+          path: agent
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.4"
+          coverage: none
+          tools: composer:v2
+
+      - name: Checkout extractor
+        uses: actions/checkout@v4
+        with:
+          repository: samudra-php/extractor
+          token: ${{ secrets.SAMUDRA_REPO_READ_TOKEN }}
+          path: extractor
+
+      - name: Checkout indexbundle contract
+        uses: actions/checkout@v4
+        with:
+          repository: samudra-php/indexbundle-contract
+          token: ${{ secrets.SAMUDRA_REPO_READ_TOKEN }}
+          path: indexbundle-contract
+
+      - name: Install dependencies
+        run: composer install --no-interaction --prefer-dist
+
+      - name: Build PHAR
+        run: ./bin/build-phar
+
+      - name: Verify install flow from local PHAR
+        run: |
+          mkdir -p "$RUNNER_TEMP/bin"
+          SAMUDRA_INSTALL_DIR="$RUNNER_TEMP/bin" SAMUDRA_INSTALL_FILE="$PWD/dist/samudra.phar" ./bin/install.sh
+          "$RUNNER_TEMP/bin/samudra" --version
+
+      - name: Generate checksum
+        run: sha256sum dist/samudra.phar > dist/samudra.phar.sha256
+
+      - name: Publish GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/samudra.phar
+            dist/samudra.phar.sha256

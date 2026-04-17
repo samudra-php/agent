@@ -1,0 +1,55 @@
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: agent
+    steps:
+      - name: Checkout agent
+        uses: actions/checkout@v4
+        with:
+          path: agent
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.4"
+          coverage: none
+          tools: composer:v2
+
+      - name: Checkout extractor
+        uses: actions/checkout@v4
+        with:
+          repository: samudra-php/extractor
+          token: ${{ secrets.SAMUDRA_REPO_READ_TOKEN }}
+          path: extractor
+
+      - name: Checkout indexbundle contract
+        uses: actions/checkout@v4
+        with:
+          repository: samudra-php/indexbundle-contract
+          token: ${{ secrets.SAMUDRA_REPO_READ_TOKEN }}
+          path: indexbundle-contract
+
+      - name: Validate composer
+        run: composer validate --strict
+
+      - name: Install dependencies
+        run: composer install --no-interaction --prefer-dist
+
+      - name: Lint PHP
+        run: find src build -name '*.php' -print0 | xargs -0 -n 1 php -l
+
+      - name: Check CLI wiring
+        run: ./bin/samudra list
+
+      - name: Build PHAR
+        run: ./bin/build-phar
