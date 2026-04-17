@@ -60,5 +60,5 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            dist/samudra.phar
-            dist/samudra.phar.sha256
+            agent/dist/samudra.phar
+            agent/dist/samudra.phar.sha256
