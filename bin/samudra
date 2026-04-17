@@ -1,0 +1,43 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+use Samudra\Agent\Commands\ExtractCommand;
+use Samudra\Agent\Commands\InitCommand;
+use Samudra\Agent\Commands\LoginCommand;
+use Samudra\Agent\Commands\RegisterCommand;
+use Samudra\Agent\Commands\StatusCommand;
+use Samudra\Agent\Commands\UploadCommand;
+use Symfony\Component\Console\Application;
+
+$autoloadCandidates = [
+    __DIR__ . '/../vendor/autoload.php',
+    __DIR__ . '/../../platform/vendor/autoload.php',
+    __DIR__ . '/../../../vendor/autoload.php',
+];
+
+$autoloadPath = null;
+
+foreach ($autoloadCandidates as $candidate) {
+    if (is_file($candidate)) {
+        $autoloadPath = $candidate;
+        break;
+    }
+}
+
+if ($autoloadPath === null) {
+    fwrite(STDERR, "Composer autoload not found.\n");
+    exit(1);
+}
+
+require_once $autoloadPath;
+
+$application = new Application('Samudra Agent', '0.1.0');
+$application->add(new InitCommand());
+$application->add(new LoginCommand());
+$application->add(new ExtractCommand());
+$application->add(new RegisterCommand());
+$application->add(new StatusCommand());
+$application->add(new UploadCommand());
+$application->run();

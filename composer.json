@@ -1,0 +1,49 @@
+{
+    "name": "samudra/samudra-agent",
+    "type": "library",
+    "description": "Samudra Agent CLI — discovery, extraction, serialization, upload",
+    "license": "MIT",
+    "require": {
+        "php": "^8.4",
+        "symfony/console": "^7.0",
+        "symfony/yaml": "^7.0",
+        "guzzlehttp/guzzle": "^7.8",
+        "samudra/samudra-extractor": "dev-main",
+        "samudra/samudra-indexbundle-contract": "dev-main"
+    },
+    "autoload": {
+        "psr-4": {
+            "Samudra\\Agent\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Samudra\\Agent\\Tests\\": "tests/"
+        }
+    },
+    "repositories": [
+        {
+            "type": "path",
+            "url": "../extractor",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "type": "path",
+            "url": "../indexbundle-contract",
+            "options": {
+                "symlink": true
+            }
+        }
+    ],
+    "bin": [
+        "bin/samudra"
+    ],
+    "scripts": {
+        "build-phar": "@php -d phar.readonly=0 build/build-phar.php"
+    },
+    "config": {
+        "sort-packages": true
+    }
+}
