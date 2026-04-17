@@ -1,35 +1,22 @@
 # Samudra Agent
 
-CLI-агент для регистрации проекта, extraction, сборки bundle и upload на Samudra Platform.
+CLI-агент для подключения проекта к Samudra Platform.
 
-## Установка для разработки
+## Требования
 
-```bash
-composer install
-./bin/samudra list
-```
+- PHP 8.4+
+- `curl`
+- `bash`
 
-Репозиторий ожидает рядом sibling checkout:
+## Установка
 
-- `../extractor`
-- `../indexbundle-contract`
-
-## Установка как глобальной команды
-
-Сборка PHAR:
+Поставить последний release:
 
 ```bash
-composer install
-./bin/build-phar
+curl -fsSL https://raw.githubusercontent.com/samudra-php/agent/main/bin/install.sh | bash
 ```
 
-Установка команды `samudra` в `~/.local/bin`:
-
-```bash
-./bin/install.sh
-```
-
-После этого команда будет доступна как:
+Проверить установку:
 
 ```bash
 samudra --help
@@ -37,36 +24,35 @@ samudra --help
 
 Если `~/.local/bin` не в `PATH`, установщик подскажет точную строку для shell.
 
-Установка из release URL:
+Если нужен конкретный release:
 
 ```bash
-SAMUDRA_INSTALL_URL="https://example.com/samudra.phar" ./bin/install.sh
+SAMUDRA_INSTALL_URL="https://github.com/samudra-php/agent/releases/download/v0.1.0/samudra.phar" \
+  curl -fsSL https://raw.githubusercontent.com/samudra-php/agent/main/bin/install.sh | bash
 ```
 
-Если локального `dist/samudra.phar` нет и `SAMUDRA_INSTALL_URL` не задан, установщик скачает последний release с GitHub.
+## Подключение проекта
 
-## Использование против локальной платформы
-
-В целевом PHP-проекте:
+В каталоге индексируемого PHP-проекта:
 
 ```bash
 samudra init --platform-url http://localhost:18000
-samudra login --token "...токен_из_platform/bin/dev-token..."
+samudra login --token "...ваш_токен..."
 samudra register
 samudra extract
 samudra status
 ```
 
-Для локальной проверки без загрузки на платформу:
+Что делают команды:
+
+- `samudra init` — создаёт `.samudra.yml`
+- `samudra login` — сохраняет URL платформы и токен
+- `samudra register` — регистрирует проект на платформе
+- `samudra extract` — собирает и отправляет bundle
+- `samudra status` — показывает состояние конфигурации и последнего run
+
+## Локальная проверка без upload
 
 ```bash
 samudra extract --output bundle.json
 ```
-
-## Команды Agent DX
-
-- `samudra init` — создаёт/дополняет `.samudra.yml` безопасными дефолтами.
-- `samudra login` — проверяет API и сохраняет `platform.url` + `auth.token`.
-- `samudra status` — показывает local state, доступность API и статус последнего run.
-
-Если токен не сохранён в `.samudra.yml`, агент использует `SAMUDRA_TOKEN` из окружения как fallback.
