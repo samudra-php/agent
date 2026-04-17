@@ -112,7 +112,7 @@ final class ExtractCommand extends Command
         $progressBar = $io->createProgressBar(max(count($files), 1));
 
         foreach ($files as $file) {
-            $results[] = $extractor->extractFile($file);
+            $results[] = $extractor->extractFile($file, $this->relativeToProjectRoot($file, $projectRoot));
             $progressBar->advance();
         }
 
@@ -249,5 +249,17 @@ final class ExtractCommand extends Command
         $data[8] = chr(ord($data[8]) & 0x3F | 0x80);
 
         return vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex($data), 4));
+    }
+
+    private function relativeToProjectRoot(string $filePath, string $projectRoot): string
+    {
+        $normalizedRoot = rtrim(str_replace('\\', '/', $projectRoot), '/');
+        $normalizedPath = str_replace('\\', '/', $filePath);
+
+        if (str_starts_with($normalizedPath, $normalizedRoot . '/')) {
+            return substr($normalizedPath, strlen($normalizedRoot) + 1);
+        }
+
+        return $normalizedPath;
     }
 }
