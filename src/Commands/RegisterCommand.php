@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Samudra\Agent\Commands;
 
+use Samudra\Agent\AgentCompatibilityGuard;
 use Throwable;
 use Samudra\Agent\AgentConfig;
 use Samudra\Agent\FingerprintCalculator;
@@ -46,10 +47,15 @@ final class RegisterCommand extends Command
         // Регистрируем проект
         $client = new PlatformClient($config->platformUrl());
         $client->setToken($token);
+        $compatibilityGuard = new AgentCompatibilityGuard();
 
         $io->text('Регистрация проекта...');
 
         try {
+            if (!$compatibilityGuard->render($client->fetchAgentCompatibility(), $io)) {
+                return Command::FAILURE;
+            }
+
             $result = $client->registerProject($fingerprint);
             $config->setProjectId($result['project_id']);
 

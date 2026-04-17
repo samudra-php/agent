@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Samudra\Agent\Commands;
 
+use Samudra\Agent\AgentCompatibilityGuard;
 use Throwable;
 use Samudra\Agent\AgentConfig;
 use Samudra\Agent\InstallationManager;
@@ -68,9 +69,14 @@ final class UploadCommand extends Command
         $io->text('Отправка bundle...');
         $client = new PlatformClient($config->platformUrl());
         $client->setToken($token);
+        $compatibilityGuard = new AgentCompatibilityGuard();
         $installationManager = new InstallationManager();
 
         try {
+            if (!$compatibilityGuard->render($client->fetchAgentCompatibility(), $io)) {
+                return Command::FAILURE;
+            }
+
             $client->registerInstallation(
                 installationId: $installationManager->getInstallationId(),
                 projectId: (string) $config->projectId(),

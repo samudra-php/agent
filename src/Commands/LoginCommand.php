@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Samudra\Agent\Commands;
 
 use RuntimeException;
+use Samudra\Agent\AgentCompatibilityGuard;
 use Throwable;
 use Samudra\Agent\AgentConfig;
 use Samudra\Agent\PlatformClient;
@@ -53,12 +54,18 @@ final class LoginCommand extends Command
         }
 
         $client = new PlatformClient($platformUrl);
+        $compatibilityGuard = new AgentCompatibilityGuard();
 
         try {
             $health = $client->health();
             if (($health['status'] ?? null) !== 'ok') {
                 $io->error('Platform health-check вернул неожиданный ответ');
 
+                return Command::FAILURE;
+            }
+
+            $compatibility = $compatibilityGuard->resolve($client, $health);
+            if (!$compatibilityGuard->render($compatibility, $io)) {
                 return Command::FAILURE;
             }
 

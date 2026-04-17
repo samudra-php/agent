@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Samudra\Agent\Commands;
 
+use Samudra\Agent\AgentCompatibilityGuard;
 use Throwable;
 use Samudra\IndexBundleContract\BundleProfile;
 use Samudra\IndexBundleContract\RunMode;
@@ -172,8 +173,13 @@ final class ExtractCommand extends Command
 
         $client = new PlatformClient($config->platformUrl());
         $client->setToken($token);
+        $compatibilityGuard = new AgentCompatibilityGuard();
 
         try {
+            if (!$compatibilityGuard->render($client->fetchAgentCompatibility(), $io)) {
+                return Command::FAILURE;
+            }
+
             $client->registerInstallation(
                 installationId: $installationId,
                 projectId: (string) $config->projectId(),

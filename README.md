@@ -55,7 +55,14 @@ samudra init --platform-url http://your-host:port
 - `samudra login` — сохраняет URL платформы и токен
 - `samudra register` — регистрирует проект на платформе
 - `samudra extract` — собирает и отправляет bundle
+- `samudra self-update` — обновляет установленный агент
 - `samudra status` — показывает состояние конфигурации и последнего run
+
+Если платформа требует более новую версию агента, `login`, `status`, `register`, `extract` и `upload` подскажут выполнить:
+
+```bash
+samudra self-update
+```
 
 ## Локальная проверка без upload
 

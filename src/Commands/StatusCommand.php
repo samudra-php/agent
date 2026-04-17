@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace Samudra\Agent\Commands;
 
 use Samudra\Agent\AgentConfig;
+use Samudra\Agent\AgentCompatibilityGuard;
+use Samudra\Agent\AgentCompatibilityStatus;
+use Samudra\Agent\AgentVersion;
 use Samudra\Agent\InstallationManager;
 use Samudra\Agent\PlatformClient;
 use Throwable;
@@ -43,10 +46,14 @@ final class StatusCommand extends Command
         $tokenSource = $config->authTokenSource() ?? 'missing';
         $projectId = $config->projectId();
         $platformUrl = $config->platformUrl();
+        $compatibilityGuard = new AgentCompatibilityGuard();
+        $compatibilityStatus = null;
+        $compatibilityError = null;
 
         $io->section('Local state');
         $io->definitionList(
             ['Config file' => $config->hasConfigFile() ? $config->configPath() : 'not found'],
+            ['Agent version' => AgentVersion::CURRENT],
             ['Platform URL' => $platformUrl],
             ['Project ID' => $projectId ?? 'not set'],
             ['Installation ID' => $installationId ?? 'not created'],
@@ -60,6 +67,16 @@ final class StatusCommand extends Command
         [$healthState, $healthError] = $this->checkHealth($client);
         if ($healthError !== null) {
             $isReady = false;
+        } else {
+            try {
+                $compatibilityStatus = $compatibilityGuard->resolve($client);
+                if (!$compatibilityStatus->isSupported) {
+                    $isReady = false;
+                }
+            } catch (Throwable $e) {
+                $compatibilityError = $e->getMessage();
+                $isReady = false;
+            }
         }
 
         [$authState, $authError] = $this->checkAuth($client, $token);
@@ -75,8 +92,13 @@ final class StatusCommand extends Command
         $io->definitionList(
             ['Health' => $healthError === null ? $healthState : $healthState . ': ' . $healthError],
             ['Auth' => $authError === null ? $authState : $authState . ': ' . $authError],
+            ['Compatibility' => $this->formatCompatibilityState($compatibilityStatus, $compatibilityError)],
             ['Project registration' => $projectId !== null ? 'ok' : 'missing (run samudra register)'],
         );
+
+        if ($compatibilityStatus !== null) {
+            $compatibilityGuard->render($compatibilityStatus, $io);
+        }
 
         $runIdOption = $input->getOption('run-id');
         $runId = is_string($runIdOption) && trim($runIdOption) !== ''
@@ -166,5 +188,22 @@ final class StatusCommand extends Command
             ['Errors count' => is_array($errors) ? (string) count($errors) : '0'],
             ['Updated at' => (string) ($runStatus['updated_at'] ?? 'unknown')],
         );
+    }
+
+    private function formatCompatibilityState(?AgentCompatibilityStatus $status, ?string $error): string
+    {
+        if ($error !== null) {
+            return 'error: ' . $error;
+        }
+
+        if ($status === null) {
+            return 'unknown';
+        }
+
+        return match ($status->label()) {
+            'unsupported' => 'unsupported',
+            'update_available' => 'update_available',
+            default => 'ok',
+        };
     }
 }

@@ -40,7 +40,7 @@ final class PlatformClient
     /**
      * Проверяет доступность платформы.
      *
-     * @return array{status: string}
+     * @return array<string, mixed>
      */
     public function health(): array
     {
@@ -50,6 +50,11 @@ final class PlatformClient
         }
 
         return $data;
+    }
+
+    public function fetchAgentCompatibility(): AgentCompatibilityStatus
+    {
+        return AgentCompatibilityStatus::fromHealthPayload($this->health());
     }
 
     /**
